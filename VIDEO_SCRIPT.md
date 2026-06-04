@@ -20,8 +20,8 @@
 
 > "SaccoChain puts the SACCO on‑chain. Deposits, loans and repayments are all handled by
 > a smart contract on Stellar — transparent, automatic, and accessible from any
-> smartphone. We forked Blend Protocol — Stellar's lending primitive — and tuned it for
-> micro‑lending: USDC only, a 2× borrow cap, and a one‑glance member dashboard."
+> smartphone. We built a Soroban lending pool tuned for micro‑lending: USDC only, a 2×
+> borrow cap, and a one‑glance member dashboard."
 
 *Visual:* SaccoChain landing page.
 

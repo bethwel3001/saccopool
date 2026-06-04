@@ -24,7 +24,7 @@ dashboard. No backend is required — the UI talks directly to Soroban RPC.
 - `/` — landing page with pool stats (total supply / total borrow / APR) and a Freighter
   connect button.
 - `/dashboard` — per-member view backed by the on-chain
-  `get_member_stats(address, asset)` view added in this fork, plus deposit / borrow /
-  repay / withdraw actions that submit `Request` structs to the pool's `submit` entrypoint.
+  `get_member_stats(address, asset)` view, plus deposit / borrow / repay / withdraw
+  actions that submit `Request` structs to the pool's `submit` entrypoint.
 
 Every successful action surfaces the tx hash with a link to Stellar Expert.

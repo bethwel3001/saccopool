@@ -32,7 +32,7 @@ export default function RootLayout({
                 Dashboard
               </Link>
               <a
-                href="https://github.com/blend-capital/blend-contracts-v2"
+                href="https://github.com/Nuwahereza-eng/saccopool"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-sacco"
@@ -44,8 +44,7 @@ export default function RootLayout({
         </header>
         <main className="max-w-5xl mx-auto px-6 py-10">{children}</main>
         <footer className="max-w-5xl mx-auto px-6 py-8 text-xs text-slate-500">
-          Built on Stellar Soroban · Forked from Blend Protocol v2 · GDG UTAMU,
-          Stellar GIVE Impact Bootcamp 2026
+          Built on Stellar Soroban · © {new Date().getFullYear()} SaccoChain
         </footer>
       </body>
     </html>

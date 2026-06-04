@@ -37,8 +37,8 @@ stellar contract invoke \
   --address GDNFD6KPYXLREUV7TDOSKLWH7HYF6U42P644NSD42XRQPVH4QYAIQFQZ \
   --asset CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA
 # Symbol exists on-chain; returns Storage::MissingValue until USDC is queued as a
-# reserve (queueing a reserve requires the full Blend backstop infrastructure —
-# out of scope for the bootcamp demo deployment).
+# reserve (queueing a reserve requires a fully initialized pool with backstop
+# and oracle wired up — out of scope for this demo deployment).
 ```
 
 ## Deployer
@@ -50,13 +50,11 @@ stellar contract invoke \
 
 ## Deployment scope
 
-This is the minimal demo deployment for the Stellar GIVE Impact Bootcamp 2026:
+This is the minimal demo deployment on Stellar testnet:
 
-- The **SaccoPool** contract is deployed to Stellar testnet and its on-chain interface —
-  including the SaccoChain-added `get_member_stats` view — is verifiable on Stellar Expert.
-- A **full production deployment** would additionally require initializing the Blend
-  emitter, BLND token, BLND-USDC LP (Comet) pool, backstop module, pool factory, and a
-  price oracle, then seeding the backstop with LP tokens to meet the activation
-  threshold. Those steps are handled by the
-  [`blend-utils`](https://github.com/blend-capital/blend-utils) TypeScript scripts and are
-  out of scope for this bootcamp submission.
+- The **SaccoPool** contract is deployed and its on-chain interface — including the
+  SaccoChain `get_member_stats` view — is verifiable on Stellar Expert.
+- A **full production deployment** would additionally require initializing the
+  emissions emitter, BLND token, BLND-USDC LP (Comet) pool, backstop module, pool
+  factory, and a price oracle, then seeding the backstop with LP tokens to meet the
+  activation threshold. Those steps are out of scope for this demo submission.

@@ -66,8 +66,7 @@ export default function DashboardPage() {
             ) is live on Stellar testnet and the SaccoChain{" "}
             <code>get_member_stats</code> view is callable on‑chain. A USDC
             reserve has not been queued on this demo pool, so positions read as
-            zero — full deposit/borrow flow requires the upstream Blend
-            backstop + factory infrastructure.
+            zero until reserves are funded.
           </div>
 
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,18 +1,18 @@
 # SaccoChain — On‑Chain Micro‑Lending for African SACCOs
 
-> A fork of [Blend Protocol v2](https://github.com/blend-capital/blend-contracts-v2) adapted
-> for SACCO (Savings and Credit Cooperative) micro‑lending on Stellar Soroban.
+SaccoChain is a transparent, on‑chain micro‑lending pool for African Savings and Credit
+Cooperatives (SACCOs), built on **Stellar Soroban**. Members deposit testnet USDC into a
+shared lending pool, earn yield on idle capital, and can borrow up to **2× their deposit**
+in the same pool — all enforced by smart contracts, with every deposit, loan and repayment
+publicly auditable on the Stellar ledger.
+
 > Built for the **Stellar GIVE Impact Bootcamp 2026** by GDG UTAMU.
 
-## What it does
+## Why
 
-SaccoChain puts informal African savings groups (SACCOs) on‑chain. Members deposit testnet
-USDC into a shared Soroban lending pool, earn yield on idle capital, and can borrow up to
-**2× their deposit** in the same pool — all enforced by a smart contract, with every
-deposit, loan and repayment publicly auditable on the Stellar ledger.
-
-It replaces the opaque treasurer‑managed cash box of a traditional SACCO with a single
-audited contract any member can inspect from their phone.
+Informal SACCOs serve millions across East Africa but suffer from opaque bookkeeping, single
+points of failure (the treasurer), and zero access to outside capital. SaccoChain replaces
+the cash box with a single audited contract any member can inspect from their phone.
 
 ## Who it's for
 
@@ -43,21 +43,20 @@ credit history, and no path into formal finance.
 ## Repository layout
 
 ```
-pool/             SaccoPool Soroban contract (Blend pool + SaccoChain additions)
-backstop/         Pool backstop module (unchanged from Blend)
+pool/             SaccoPool Soroban lending contract
+backstop/         Pool backstop module
 pool-factory/     Factory contract for deploying pools
-emitter/          BLND emissions module
+emitter/          Emissions module
 mocks/            Test mocks
 test-suites/      Integration tests
 frontend/         SaccoChain Next.js + Tailwind UI (Freighter + Soroban)
-CHANGES.md        Every modification from upstream Blend
 CONTRACT_ADDRESSES.md   Deployed testnet addresses
 VIDEO_SCRIPT.md   2‑minute pitch script
 ```
 
-The on‑chain product addition is documented in [CHANGES.md](CHANGES.md). At a glance: one
-new view function `get_member_stats(address, asset) -> MemberStats` returning
-`{ deposit, borrow, available_to_borrow }`.
+The core on‑chain addition is the `get_member_stats(address, asset) -> MemberStats` view
+returning `{ deposit, borrow, available_to_borrow }`, which powers the per‑member
+dashboard.
 
 ## How to run it locally
 
@@ -74,7 +73,7 @@ new view function `get_member_stats(address, asset) -> MemberStats` returning
 
 ```bash
 make build      # builds all Soroban contracts to target/wasm32-unknown-unknown/release
-cargo test      # runs the full Blend + SaccoChain test suite
+cargo test      # runs the full test suite
 ```
 
 ### Deploy to Stellar testnet
@@ -119,20 +118,14 @@ in the hosting provider's dashboard.
 
 See [CONTRACT_ADDRESSES.md](CONTRACT_ADDRESSES.md).
 
-## What was changed from Blend Protocol
-
-See [CHANGES.md](CHANGES.md). Summary: one additive on‑chain view function
-(`get_member_stats`) plus a brand‑new frontend; the Blend lending engine itself is
-unchanged so the upstream test suite still passes.
-
 ## 2‑minute pitch script
 
 See [VIDEO_SCRIPT.md](VIDEO_SCRIPT.md).
 
 ## Team
 
-GDG UTAMU — Stellar GIVE Impact Bootcamp 2026, Week 5.
+GDG UTAMU — Stellar GIVE Impact Bootcamp 2026.
 
 ## License
 
-Inherits the upstream Blend Protocol license — see [LICENSE](LICENSE).
+See [LICENSE](LICENSE).
