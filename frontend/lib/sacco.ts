@@ -13,6 +13,14 @@ import {
 import * as StellarSdk from "@stellar/stellar-sdk";
 import freighterApi from "@stellar/freighter-api";
 import { config, requirePoolId } from "./config";
+import {
+  applySimAction,
+  getSimMemberStats,
+  getSimPoolStats,
+  isSimulatorMode,
+  simTxHash,
+  SimAction,
+} from "./simulator";
 
 // stellar-sdk v12 exposes Soroban RPC as `SorobanRpc`; in newer versions it's `rpc`.
 // We resolve at runtime to stay compatible.
@@ -173,6 +181,9 @@ async function simulate(
 }
 
 export async function getMemberStats(address: string): Promise<MemberStats> {
+  if (isSimulatorMode()) {
+    return getSimMemberStats(address);
+  }
   const poolId = requirePoolId();
   try {
     const result = await simulate(address, poolId, "get_member_stats", [
@@ -201,6 +212,9 @@ export async function getMemberStats(address: string): Promise<MemberStats> {
 }
 
 export async function getPoolStats(): Promise<PoolStats> {
+  if (isSimulatorMode()) {
+    return getSimPoolStats();
+  }
   const poolId = requirePoolId();
   // Use the USDC contract id as a stand-in source for the simulate "from".
   // Anyone can read; the from address only matters for fees.
@@ -245,6 +259,15 @@ const REQUEST_TYPE_CODES: Record<RequestType, number> = {
   repay: 5,
 };
 
+const REQUEST_TO_SIM: Partial<Record<RequestType, SimAction>> = {
+  supply: "deposit",
+  supply_collateral: "deposit",
+  withdraw: "withdraw",
+  withdraw_collateral: "withdraw",
+  borrow: "borrow",
+  repay: "repay",
+};
+
 function buildRequestScVal(kind: RequestType, asset: string, amount: bigint) {
   // Matches the Soroban `Request` struct in pool/src/pool/actions.rs:
   //   { request_type: u32, address: Address, amount: i128 }
@@ -269,6 +292,14 @@ export async function submitRequest(
   kind: RequestType,
   amountAtomic: bigint
 ): Promise<string> {
+  if (isSimulatorMode()) {
+    const action = REQUEST_TO_SIM[kind];
+    if (!action) throw new Error(`Unsupported action in simulator: ${kind}`);
+    applySimAction(from, action, amountAtomic);
+    // Yield to the event loop so the UI animates the "Submitting…" state.
+    await new Promise((r) => setTimeout(r, 400));
+    return simTxHash(from, action, amountAtomic);
+  }
   const poolId = requirePoolId();
   const account = await server.getAccount(from);
   const contract = new Contract(poolId);

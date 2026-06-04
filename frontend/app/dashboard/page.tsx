@@ -8,6 +8,7 @@ import {
   MemberStats,
   watchWallet,
 } from "@/lib/sacco";
+import { isSimulatorMode } from "@/lib/simulator";
 
 export default function DashboardPage() {
   const [address, setAddress] = useState<string | null>(null);
@@ -57,17 +58,24 @@ export default function DashboardPage() {
 
       {address && (
         <>
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            <strong>Testnet demo mode.</strong> The deployed SaccoPool
-            contract (
-            <code className="font-mono">
-              CBY2WIY6…W7DDF
-            </code>
-            ) is live on Stellar testnet and the SaccoChain{" "}
-            <code>get_member_stats</code> view is callable on‑chain. A USDC
-            reserve has not been queued on this demo pool, so positions read as
-            zero until reserves are funded.
-          </div>
+          {isSimulatorMode() ? (
+            <div className="rounded-xl border border-sacco/30 bg-sacco-light px-4 py-3 text-sm text-slate-800">
+              <strong>Demo mode.</strong> Deposit, borrow, repay and withdraw
+              actions run against an in‑browser simulator that mirrors the
+              on‑chain SaccoPool logic (including the 2× borrow cap). The
+              SaccoPool contract itself is deployed on Stellar testnet
+              (<code className="font-mono">CBY2WIY6…W7DDF</code>) and its
+              <code> get_member_stats</code> view is callable on‑chain — we run
+              in simulator mode here so judges can walk the full member flow
+              end‑to‑end without waiting on testnet reserve activation.
+            </div>
+          ) : (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <strong>Live testnet mode.</strong> All actions are real Stellar
+              testnet transactions signed by your Freighter wallet against
+              SaccoPool contract <code className="font-mono">CBY2WIY6…W7DDF</code>.
+            </div>
+          )}
 
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard

@@ -7,6 +7,7 @@ import {
   usdcToAtomic,
 } from "@/lib/sacco";
 import { explorerTx } from "@/lib/config";
+import { isSimulatorMode } from "@/lib/simulator";
 
 type Tab = "deposit" | "borrow" | "repay" | "withdraw";
 
@@ -128,15 +129,26 @@ export function ActionPanel({
 
       {txHash && (
         <div className="rounded-xl border border-sacco/30 bg-sacco-light px-4 py-3 text-sm">
-          ✅ Transaction confirmed.{" "}
-          <a
-            className="font-medium underline"
-            href={explorerTx(txHash)}
-            target="_blank"
-            rel="noreferrer"
-          >
-            View on Stellar Expert ↗
-          </a>
+          {isSimulatorMode() ? (
+            <>
+              ✅ Simulated locally.{" "}
+              <span className="font-mono text-xs text-slate-600">
+                ref {txHash.slice(0, 10)}…{txHash.slice(-6)}
+              </span>
+            </>
+          ) : (
+            <>
+              ✅ Transaction confirmed.{" "}
+              <a
+                className="font-medium underline"
+                href={explorerTx(txHash)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on Stellar Expert ↗
+              </a>
+            </>
+          )}
         </div>
       )}
     </div>
