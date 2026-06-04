@@ -63,8 +63,7 @@ new and does not reuse any prior UI.
 
 - `pool/src/contract.rs` — added `MemberStats` + `get_member_stats`.
 - `CHANGES.md` — this file.
-- `README.md` — replaced with SaccoChain product README (original Blend README preserved in
-  git history).
+- `README.md` — replaced with SaccoChain product README.
 - `CONTRACT_ADDRESSES.md` — new, holds testnet deployment addresses.
 - `VIDEO_SCRIPT.md` — new, 2‑minute pitch script.
 - `frontend/**` — new Next.js + Tailwind frontend.

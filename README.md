@@ -4,8 +4,6 @@
 > for SACCO (Savings and Credit Cooperative) micro‑lending on Stellar Soroban.
 > Built for the **Stellar GIVE Impact Bootcamp 2026** by GDG UTAMU.
 
-The original Blend README is preserved at [README.blend.md](README.blend.md).
-
 ## What it does
 
 SaccoChain puts informal African savings groups (SACCOs) on‑chain. Members deposit testnet
