@@ -1,0 +1,15 @@
+/target
+.DS_Store
+**/.DS_Store
+
+test_snapshots/
+
+# JS
+*/node_modules
+local.*
+
+/js
+
+# Stellar CLI local identities (contain secret keys — never commit)
+.stellar/
+frontend/.env.local
