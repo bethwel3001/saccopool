@@ -8,6 +8,20 @@ import {
 } from "@/lib/sacco";
 import { explorerTx } from "@/lib/config";
 import { isSimulatorMode } from "@/lib/simulator";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  ArrowDownCircle, 
+  ArrowUpCircle, 
+  RotateCcw, 
+  Wallet, 
+  Loader2, 
+  ExternalLink,
+  Info,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type Tab = "deposit" | "borrow" | "repay" | "withdraw";
 
@@ -16,6 +30,29 @@ const TAB_TO_REQUEST: Record<Tab, RequestType> = {
   borrow: "borrow",
   repay: "repay",
   withdraw: "withdraw_collateral",
+};
+
+const TAB_DETAILS: Record<Tab, { icon: any; color: string; description: string }> = {
+  deposit: {
+    icon: ArrowDownCircle,
+    color: "text-emerald-600",
+    description: "Deposits become collateral and start earning yield immediately."
+  },
+  borrow: {
+    icon: ArrowUpCircle,
+    color: "text-blue-600",
+    description: "Borrow is capped at 2× your current deposit (SaccoChain rule)."
+  },
+  repay: {
+    icon: RotateCcw,
+    color: "text-amber-600",
+    description: "Repay any portion of your outstanding loan."
+  },
+  withdraw: {
+    icon: Wallet,
+    color: "text-purple-600",
+    description: "Withdraw idle collateral. The on-chain health check will block unsafe withdrawals."
+  },
 };
 
 export function ActionPanel({
@@ -32,125 +69,130 @@ export function ActionPanel({
   const [tab, setTab] = useState<Tab>("deposit");
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
-  const [txHash, setTxHash] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
-    setError(null);
-    setTxHash(null);
     const atomic = usdcToAtomic(amount);
     if (atomic <= 0n) {
-      setError("Enter an amount greater than 0.");
+      toast.error("Enter an amount greater than 0.");
       return;
     }
     if (tab === "borrow" && atomic > availableToBorrow) {
-      setError(
+      toast.error(
         "SaccoChain limits borrow to 2× your deposit. Lower the amount or deposit more first."
       );
       return;
     }
     if (tab === "repay" && atomic > currentBorrow) {
-      setError("Repay amount cannot exceed your current borrow.");
+      toast.error("Repay amount cannot exceed your current borrow.");
       return;
     }
+
     setBusy(true);
+    const loadingToast = toast.loading(`Processing ${tab}...`);
+    
     try {
       const hash = await submitRequest(address, TAB_TO_REQUEST[tab], atomic);
-      setTxHash(hash);
+      toast.success(`${tab.charAt(0).toUpperCase() + tab.slice(1)} successful!`, {
+        id: loadingToast,
+        description: isSimulatorMode() 
+          ? "Simulated locally." 
+          : "Transaction confirmed on Stellar.",
+        action: !isSimulatorMode() ? {
+          label: "View Transaction",
+          onClick: () => window.open(explorerTx(hash), "_blank")
+        } : undefined
+      });
       setAmount("");
       onSuccess();
     } catch (e: any) {
-      setError(e?.message ?? String(e));
+      toast.error(e?.message ?? String(e), { id: loadingToast });
     } finally {
       setBusy(false);
     }
   };
 
+  const activeDetails = TAB_DETAILS[tab];
+
   return (
-    <div className="card space-y-4">
-      <div className="flex flex-wrap gap-2">
+    <div className="card overflow-hidden border-slate-200/60 shadow-xl shadow-slate-200/40 p-4 sm:p-8 rounded-[2rem]">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap p-1.5 gap-1.5 bg-slate-100 rounded-2xl mb-8">
         {(["deposit", "borrow", "repay", "withdraw"] as Tab[]).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => {
               setTab(t);
-              setError(null);
-              setTxHash(null);
+              setAmount("");
             }}
-            className={`px-4 py-2 rounded-xl text-sm font-medium capitalize transition ${
+            className={cn(
+              "px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold capitalize transition-all duration-200 flex items-center justify-center gap-2 sm:flex-1",
               tab === t
-                ? "bg-sacco text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-            }`}
+                ? "bg-white text-sacco shadow-md"
+                : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+            )}
           >
             {t}
           </button>
         ))}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-sm text-slate-600">Amount (USDC)</label>
-        <div className="flex gap-2">
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="flex-1 px-4 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sacco"
-          />
-          <button
-            className="btn-primary capitalize"
-            onClick={submit}
-            disabled={busy}
-            type="button"
-          >
-            {busy ? "Submitting…" : tab}
-          </button>
-        </div>
-        <p className="text-xs text-slate-500">
-          {tab === "borrow"
-            ? "Borrow is capped at 2× your current deposit (SaccoChain rule)."
-            : tab === "deposit"
-            ? "Deposits become collateral and start earning yield immediately."
-            : tab === "repay"
-            ? "Repay any portion of your outstanding loan."
-            : "Withdraw idle collateral. The on-chain health check will block unsafe withdrawals."}
-        </p>
-      </div>
-
-      {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          {error}
-        </div>
-      )}
-
-      {txHash && (
-        <div className="rounded-xl border border-sacco/30 bg-sacco-light px-4 py-3 text-sm">
-          {isSimulatorMode() ? (
-            <>
-              ✅ Simulated locally.{" "}
-              <span className="font-mono text-xs text-slate-600">
-                ref {txHash.slice(0, 10)}…{txHash.slice(-6)}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-8"
+        >
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between px-1">
+              <label className="text-sm sm:text-base font-bold text-slate-700 flex items-center gap-2">
+                <activeDetails.icon className={cn("w-5 h-5", activeDetails.color)} />
+                {tab.charAt(0).toUpperCase() + tab.slice(1)} amount
+              </label>
+              <span className="text-[10px] sm:text-xs font-black text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg lowercase tracking-normal">
+                usdc
               </span>
-            </>
-          ) : (
-            <>
-              ✅ Transaction confirmed.{" "}
-              <a
-                className="font-medium underline"
-                href={explorerTx(txHash)}
-                target="_blank"
-                rel="noreferrer"
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 group">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full px-5 py-4 rounded-2xl border-2 border-slate-100 focus:outline-none focus:ring-4 focus:ring-sacco/10 focus:border-sacco transition-all text-xl font-bold placeholder:text-slate-300"
+                />
+              </div>
+              <button
+                className="btn-primary px-10 py-4 sm:py-2 min-w-[140px] shadow-lg shadow-sacco/20 rounded-2xl text-lg"
+                onClick={submit}
+                disabled={busy || !amount}
+                type="button"
               >
-                View on Stellar Expert ↗
-              </a>
-            </>
-          )}
-        </div>
-      )}
+                {busy ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <span className="capitalize">{tab}</span>
+                )}
+              </button>
+            </div>
+            
+            <div className="flex items-start gap-3 p-5 rounded-2xl bg-slate-50 border border-slate-100 mt-2">
+              <div className="w-6 h-6 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0 mt-0.5">
+                <Info className="w-4 h-4 text-slate-400" />
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                {activeDetails.description}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

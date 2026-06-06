@@ -2,34 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
+@layer base {
+  :root {
+    --sacco: 14, 124, 74;
+    --sacco-dark: 10, 86, 52;
+    --sacco-light: 230, 244, 236;
+    --sacco-accent: 246, 192, 38;
+  }
+
+  body {
+    @apply bg-[#f8fafc] text-slate-900 antialiased selection:bg-sacco/20 selection:text-sacco-dark;
+  }
 }
 
-body {
-  @apply bg-sacco-light text-slate-900 antialiased;
+@layer components {
+  .card {
+    @apply bg-white rounded-[2rem] shadow-sm border border-slate-200/60 p-6 transition-all duration-300;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
+  }
+
+  .btn-primary {
+    @apply btn bg-sacco text-white hover:bg-sacco-dark hover:shadow-lg hover:shadow-sacco/20;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-sacco border-2 border-sacco/10 hover:border-sacco/30 hover:bg-sacco-light/30;
+  }
+
+  .stat-label {
+    @apply text-xs font-bold uppercase tracking-widest text-slate-400;
+  }
+
+  .stat-value {
+    @apply text-3xl font-extrabold text-slate-900 tracking-tight;
+  }
 }
 
-.card {
-  @apply bg-white rounded-2xl shadow-sm border border-slate-200 p-6;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.btn {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium transition disabled:opacity-50 disabled:cursor-not-allowed;
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
 }
 
-.btn-primary {
-  @apply btn bg-sacco text-white hover:bg-sacco-dark;
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
 }
 
-.btn-secondary {
-  @apply btn bg-white text-sacco border border-sacco hover:bg-sacco-light;
-}
-
-.stat-label {
-  @apply text-xs uppercase tracking-wide text-slate-500;
-}
-
-.stat-value {
-  @apply text-2xl font-semibold text-slate-900;
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
